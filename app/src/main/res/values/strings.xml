@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BME 363 Lab</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="dialog_select_device">Select a device</string>
+    <string name="dialog_search">Scan for new</string>
+</resources>
