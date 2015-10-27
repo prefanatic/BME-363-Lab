@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -20,6 +19,7 @@ import timber.log.Timber;
 public class MainActivity extends AppCompatActivity {
     @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.fab) FloatingActionButton mFab;
+    @Bind(R.id.line_chart) ReplacingLineChartView mChart;
 
     private BluetoothSocket mSocket;
 
@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-
+        mChart.setMaximumX(255);
+        mChart.setForwardRemoveSize(10);
     }
 
     @OnClick(R.id.fab)
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private void onBytesReceived(byte[] data) {
         int ledCount = data[0] & 0xFF;
         Timber.d("Received %d", ledCount);
+
+        mChart.addEntry(ledCount);
     }
 
     private void deviceSelected(BluetoothDevice device) {
@@ -61,9 +64,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        try {
-            mSocket.close();
-        } catch (IOException e) {}
+        if (mSocket != null)
+            try {
+                mSocket.close();
+            } catch (IOException e) {
+            }
     }
 
     @Override
