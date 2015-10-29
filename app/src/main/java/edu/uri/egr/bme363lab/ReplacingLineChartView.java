@@ -59,12 +59,13 @@ public class ReplacingLineChartView extends FrameLayout {
         // If we hit our maximum cap, we need to do some magic.
         if (mXInsertEntry == mMaximumX) {
             // Remove the first value in our entry.
-            data.removeEntry(0, 0);
+            data.getDataSetByIndex(0).removeFirst();
+
 
             // Shift all entries down one.
-            for (Entry entry : data.getDataSetByIndex(0).getYVals()) {
-                entry.setXIndex(entry.getXIndex() - 1);
-            }
+            for (int i = 0; i < data.getDataSetByIndex(0).getYVals().size(); i++)
+                data.getDataSetByIndex(0).getYVals().get(i).setXIndex(i - 1);
+
         } else {
             mXInsertEntry++;
         }

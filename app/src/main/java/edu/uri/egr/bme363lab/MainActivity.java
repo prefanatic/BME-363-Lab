@@ -14,7 +14,6 @@ import java.io.IOException;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.line_chart) ReplacingLineChartView mChart;
 
     private BluetoothSocket mSocket;
+    private int currentFunction;
+    private int byteReadFlag = -1;
+    private volatile int graphValueToAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-        mChart.setMaximumX(255);
+        mChart.setMaximumX(512);
         mChart.setForwardRemoveSize(10);
     }
 
@@ -42,15 +44,79 @@ public class MainActivity extends AppCompatActivity {
         dialog.show(getFragmentManager(), "deviceList");
     }
 
+    private void switchFunction(int function) {
+        currentFunction = function;
+
+        Timber.d("Switching to function %d.", function);
+        runOnUiThread(() -> {
+                    switch (function) {
+                        case 0:
+                            setTitle("Binary Counter");
+                            break;
+                        case 1:
+                            setTitle("ECG Simulation");
+                            break;
+                        case 2:
+                            setTitle("Echo (A/D - D/A)");
+                            break;
+                        case 3:
+                            setTitle("");
+                            break;
+                        case 4:
+                            setTitle("Derivative");
+                            break;
+                        case 5:
+                            setTitle("Low-pass Filter");
+                            break;
+                        case 6:
+                            setTitle("Hi-Freq Enhance");
+                            break;
+                        case 7:
+                            setTitle("60hz Notch Filter");
+                            break;
+                        case 8:
+                            setTitle("Median Filter");
+                            break;
+                        case 9:
+                            setTitle("MOBD");
+                            break;
+                        default:
+                            setTitle("Unknown Function");
+                    }
+                }
+        );
+    }
+
+    private void graphValue(int val) {
+        runOnUiThread(() -> mChart.addEntry(val));
+    }
+
     private void onBytesReceived(byte[] data) {
-        // We assume that each byte we receive is individual.
+        /*
+        This is a bad way of doing this, but we need to.
+        The predictability of the RN-42 is unreliable - hence, data we receive may or may not all come at once.
+        So, we'll set some flags based on the first byte we receive, and check the next one after.
+         */
         for (int i = 0; i < data.length; i++) {
-            int ledCount = data[i] & 0xFF; // Shift it out of signed to unsigned.
+            int val = data[i] & 0xFF;
 
-            mChart.addEntry(ledCount);
+            switch (byteReadFlag) {
+                case -1:
+                    byteReadFlag = val;
+                    break;
+                case 0:
+                    switchFunction(val);
+                    byteReadFlag = -1;
+                    break;
+                case 1:
+                    graphValue(val);
+                    byteReadFlag = -1;
+                    break;
+                default:
+                    Timber.e("Unknown byteReadFlag set.");
+                    break;
+            }
         }
-
-        //mChart.addEntry(ledCount);
     }
 
     private void deviceSelected(BluetoothDevice device) {
@@ -59,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
                     Timber.d("Connected.");
                     mSocket = socket;
                     RxBluetooth.readInputStream(socket)
-                            .onBackpressureBuffer() // I don't think I should be doing this :o
-                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(this::onBytesReceived);
                 }, err -> {
                     Timber.e("Failed to connect: %s", err.getMessage());
