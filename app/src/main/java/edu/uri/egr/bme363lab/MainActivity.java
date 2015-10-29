@@ -14,6 +14,7 @@ import java.io.IOException;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,10 +43,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onBytesReceived(byte[] data) {
-        int ledCount = data[0] & 0xFF;
-        Timber.d("Received %d", ledCount);
+        // We assume that each byte we receive is individual.
+        for (int i = 0; i < data.length; i++) {
+            int ledCount = data[i] & 0xFF; // Shift it out of signed to unsigned.
 
-        mChart.addEntry(ledCount);
+            mChart.addEntry(ledCount);
+        }
+
+        //mChart.addEntry(ledCount);
     }
 
     private void deviceSelected(BluetoothDevice device) {
@@ -54,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
                     Timber.d("Connected.");
                     mSocket = socket;
                     RxBluetooth.readInputStream(socket)
+                            .onBackpressureBuffer() // I don't think I should be doing this :o
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(this::onBytesReceived);
                 }, err -> {
                     Timber.e("Failed to connect: %s", err.getMessage());

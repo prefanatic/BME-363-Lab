@@ -38,6 +38,7 @@ public class ReplacingLineChartView extends FrameLayout {
 
         data.addDataSet(set);
         mChart.setData(data);
+        mChart.getAxisLeft().setAxisMaxValue(255);
 
         addView(mChart, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
@@ -69,7 +70,7 @@ public class ReplacingLineChartView extends FrameLayout {
         }
 
         mChart.notifyDataSetChanged();
-        mChart.moveViewToX(mMaximumX);
+        mChart.invalidate();
     }
 
     public void setMaximumX(int xMax) {
