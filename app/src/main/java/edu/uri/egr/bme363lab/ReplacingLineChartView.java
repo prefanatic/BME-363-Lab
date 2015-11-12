@@ -12,7 +12,10 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
 public class ReplacingLineChartView extends FrameLayout {
+    private int COLOR_ACCENT;
+
     private LineChart mChart;
+
     private int mXInsertEntry = 0;
     private int mForwardRemoveSize = 0;
     private int mMaximumX = 100;
@@ -31,6 +34,7 @@ public class ReplacingLineChartView extends FrameLayout {
     }
 
     private void init() {
+        COLOR_ACCENT = getContext().getResources().getColor(R.color.colorAccent, getContext().getTheme());
         mChart = new LineChart(getContext());
 
         LineData data = new LineData();
@@ -38,7 +42,12 @@ public class ReplacingLineChartView extends FrameLayout {
 
         data.addDataSet(set);
         mChart.setData(data);
+        mChart.getLegend().setEnabled(false);
+        mChart.setDescription("");
+        mChart.setDrawGridBackground(false);
         mChart.getAxisLeft().setAxisMaxValue(255);
+        mChart.getAxisRight().setEnabled(false);
+        mChart.getXAxis().setDrawLabels(false);
 
         addView(mChart, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
@@ -47,6 +56,8 @@ public class ReplacingLineChartView extends FrameLayout {
         LineDataSet set = new LineDataSet(null, "Value");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setDrawValues(false);
+        set.setDrawCircles(false);
+        set.setColor(COLOR_ACCENT);
 
         return set;
     }

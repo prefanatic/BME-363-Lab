@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private int currentFunction;
     private int byteReadFlag = -1;
     private volatile int graphValueToAdd;
+    private boolean skipTrigger = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-        mChart.setMaximumX(512);
+        mChart.setMaximumX(1024);
         mChart.setForwardRemoveSize(10);
     }
 
@@ -109,10 +111,15 @@ public class MainActivity extends AppCompatActivity {
                     byteReadFlag = -1;
                     break;
                 case 1:
-                    graphValue(val);
+                    // Skip every other graph value.  Too much data!
+                    if (!skipTrigger) {
+                        graphValue(val);
+                    }
+                    skipTrigger = !skipTrigger;
                     byteReadFlag = -1;
                     break;
                 default:
+                    byteReadFlag = -1;
                     Timber.e("Unknown byteReadFlag set.");
                     break;
             }
@@ -123,12 +130,28 @@ public class MainActivity extends AppCompatActivity {
         RxBluetooth.connectAsClient(device)
                 .subscribe(socket -> {
                     Timber.d("Connected.");
+                    snackMessage("Connected");
+
                     mSocket = socket;
                     RxBluetooth.readInputStream(socket)
-                            .subscribe(this::onBytesReceived);
+                            .subscribe(this::onBytesReceived, this::onError);
                 }, err -> {
                     Timber.e("Failed to connect: %s", err.getMessage());
                 });
+    }
+
+    private void onError(Throwable e) {
+        Timber.e(e, "Input Stream Error");
+
+        if (e.getMessage().contains("bt socket closed")) {
+            snackMessage("Disconnected");
+        } else {
+            snackMessage(e.getMessage());
+        }
+    }
+
+    private void snackMessage(String text) {
+        Snackbar.make(mToolbar, text, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
