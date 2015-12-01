@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * snackMessage
      * Little helper function to display a Snackbar with a text provided.
-     * @param text
+     * @param text String message
      */
     private void snackMessage(String text) {
         Snackbar.make(mToolbar, text, Snackbar.LENGTH_LONG).show();
