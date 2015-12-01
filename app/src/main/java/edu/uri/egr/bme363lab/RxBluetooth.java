@@ -13,6 +13,11 @@ import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.schedulers.Schedulers;
 
+/**
+ * RxBluetooth
+ * ReactiveX wrapper for Android's Bluetooth API.
+ * Makes it easier to work with Bluetooth streams by using a stream!
+ */
 public class RxBluetooth {
     private static final UUID SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
