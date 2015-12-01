@@ -7,10 +7,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".MainActivity"
+    tools:context=".ui.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <edu.uri.egr.bme363lab.ReplacingLineChartView
+    <edu.uri.egr.bme363lab.ui.widget.ReplacingLineChartView
         android:id="@+id/line_chart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

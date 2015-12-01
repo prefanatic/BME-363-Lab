@@ -1,4 +1,4 @@
-package edu.uri.egr.bme363lab;
+package edu.uri.egr.bme363lab.ui.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,6 +15,8 @@ import android.widget.Button;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import edu.uri.egr.bme363lab.R;
+import edu.uri.egr.bme363lab.ui.adapter.DeviceAdapter;
 import rx.Observable;
 import rx.Subscription;
 import rx.subjects.PublishSubject;

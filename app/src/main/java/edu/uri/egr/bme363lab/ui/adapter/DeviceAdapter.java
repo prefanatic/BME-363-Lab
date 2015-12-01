@@ -1,4 +1,4 @@
-package edu.uri.egr.bme363lab;
+package edu.uri.egr.bme363lab.ui.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import edu.uri.egr.bme363lab.R;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 

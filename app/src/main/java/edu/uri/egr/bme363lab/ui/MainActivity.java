@@ -1,4 +1,4 @@
-package edu.uri.egr.bme363lab;
+package edu.uri.egr.bme363lab.ui;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -7,14 +7,16 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import edu.uri.egr.bme363lab.ui.dialog.DeviceListDialog;
+import edu.uri.egr.bme363lab.R;
+import edu.uri.egr.bme363lab.ui.widget.ReplacingLineChartView;
+import edu.uri.egr.bme363lab.RxBluetooth;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -163,27 +165,5 @@ public class MainActivity extends AppCompatActivity {
                 mSocket.close();
             } catch (IOException e) {
             }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

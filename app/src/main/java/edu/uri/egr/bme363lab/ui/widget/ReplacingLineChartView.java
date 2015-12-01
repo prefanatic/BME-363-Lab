@@ -1,4 +1,4 @@
-package edu.uri.egr.bme363lab;
+package edu.uri.egr.bme363lab.ui.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -10,6 +10,8 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+
+import edu.uri.egr.bme363lab.R;
 
 public class ReplacingLineChartView extends FrameLayout {
     private int COLOR_ACCENT;
