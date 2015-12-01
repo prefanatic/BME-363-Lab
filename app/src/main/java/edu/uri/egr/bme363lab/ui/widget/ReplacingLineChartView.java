@@ -1,6 +1,7 @@
 package edu.uri.egr.bme363lab.ui.widget;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -36,7 +37,7 @@ public class ReplacingLineChartView extends FrameLayout {
     }
 
     private void init() {
-        COLOR_ACCENT = getContext().getResources().getColor(R.color.colorAccent, getContext().getTheme());
+        COLOR_ACCENT = ContextCompat.getColor(getContext(), R.color.colorAccent);
         mChart = new LineChart(getContext());
 
         LineData data = new LineData();
