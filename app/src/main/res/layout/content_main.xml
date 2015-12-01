@@ -11,8 +11,15 @@
     tools:showIn="@layout/activity_main">
 
     <edu.uri.egr.bme363lab.ReplacingLineChartView
-        android:id="@+id/line_chart"
+        android:id="@+id/line_chart_original"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="0.5"/>
+
+    <edu.uri.egr.bme363lab.ReplacingLineChartView
+        android:id="@+id/line_chart_transformed"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"/>
 
 </LinearLayout>
