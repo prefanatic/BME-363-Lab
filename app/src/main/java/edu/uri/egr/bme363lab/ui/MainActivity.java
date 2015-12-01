@@ -22,13 +22,15 @@ import timber.log.Timber;
 public class MainActivity extends AppCompatActivity {
     @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.fab) FloatingActionButton mFab;
-    @Bind(R.id.line_chart) ReplacingLineChartView mChart;
+    @Bind(R.id.line_chart_original) ReplacingLineChartView mChartOriginal;
+    @Bind(R.id.line_chart_transformed) ReplacingLineChartView mChartTransformed;
 
     private BluetoothSocket mSocket;
     private int currentFunction;
     private int byteReadFlag = -1;
     private volatile int graphValueToAdd;
-    private boolean skipTrigger = false;
+    private boolean skipTriggerOriginal = false;
+    private boolean skipTriggerTransformed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-        mChart.setMaximumX(1024);
-        mChart.setForwardRemoveSize(10);
+        mChartOriginal.setMaximumX(1024);
+        mChartTransformed.setMaximumX(1024);
     }
 
     @OnClick(R.id.fab)
@@ -91,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private void graphValue(int val) {
-        runOnUiThread(() -> mChart.addEntry(val));
+    private void graphValue(int val, ReplacingLineChartView chart) {
+        runOnUiThread(() -> chart.addEntry(val));
     }
 
     private void onBytesReceived(byte[] data) {
@@ -105,24 +107,31 @@ public class MainActivity extends AppCompatActivity {
             int val = data[i] & 0xFF;
 
             switch (byteReadFlag) {
-                case -1:
+                case -1: // Setting the expected next value.
                     byteReadFlag = val;
                     break;
-                case 0:
+                case 0: // Expecting a function change.
                     switchFunction(val);
                     byteReadFlag = -1;
                     break;
-                case 1:
+                case 1: // Expecting an untouched graph value.
                     // Skip every other graph value.  Too much data!
-                    if (!skipTrigger) {
-                        graphValue(val);
+                    if (!skipTriggerOriginal) {
+                        graphValue(val, mChartOriginal);
                     }
-                    skipTrigger = !skipTrigger;
+                    skipTriggerOriginal = !skipTriggerOriginal;
+                    byteReadFlag = -1;
+                    break;
+                case 2: // Expecting the transformed graph value.
+                    if (!skipTriggerTransformed) {
+                        graphValue(val, mChartTransformed);
+                    }
+                    skipTriggerTransformed = !skipTriggerTransformed;
                     byteReadFlag = -1;
                     break;
                 default:
                     byteReadFlag = -1;
-                    Timber.e("Unknown byteReadFlag set.");
+                    Timber.e("Unknown byteReadFlag set (%d).", val);
                     break;
             }
         }
@@ -137,9 +146,7 @@ public class MainActivity extends AppCompatActivity {
                     mSocket = socket;
                     RxBluetooth.readInputStream(socket)
                             .subscribe(this::onBytesReceived, this::onError);
-                }, err -> {
-                    Timber.e("Failed to connect: %s", err.getMessage());
-                });
+                }, this::onError);
     }
 
     private void onError(Throwable e) {
