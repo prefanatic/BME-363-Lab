@@ -27,7 +27,7 @@ public class DeviceListDialog extends DialogFragment {
 
     private DeviceAdapter mAdapter;
     private Subscription mSubscription;
-    private PublishSubject<BluetoothDevice> mSubject = PublishSubject.create();
+    private final PublishSubject<BluetoothDevice> mSubject = PublishSubject.create();
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

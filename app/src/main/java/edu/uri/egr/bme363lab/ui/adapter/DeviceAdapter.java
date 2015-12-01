@@ -53,7 +53,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         return devices.size();
     }
 
-    final View.OnClickListener clickListener = clickSubject::onNext;
+    private final View.OnClickListener clickListener = clickSubject::onNext;
 
     final class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.device_name) TextView name;
