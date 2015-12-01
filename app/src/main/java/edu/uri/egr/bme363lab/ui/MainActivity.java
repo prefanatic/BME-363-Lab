@@ -234,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ButterKnife.unbind(this); // We need to unbind from ButterKnife, otherwise we leak memory.
 
         // If we've connected/this isn't null
         if (mSocket != null)
