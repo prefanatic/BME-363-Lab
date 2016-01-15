@@ -33,6 +33,7 @@ import edu.uri.egr.bme363lab.ui.dialog.DeviceListDialog;
 import edu.uri.egr.bme363lab.R;
 import edu.uri.egr.bme363lab.ui.widget.ReplacingLineChartView;
 import edu.uri.egr.bme363lab.RxBluetooth;
+import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -99,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
         Android requires any manipulation of the views to be done on the UI Thread (also known as the Main Thread)
         Because this function is being called from the Bluetooth callbacks, we need to hop over to the UI thread by running runOnUiThread.
          */
-        runOnUiThread(() -> {
+        // TODO: 12/4/15 These runnables are causing memory leaks!  :(
+        //runOnUiThread(() -> {
                     switch (function) {
                         case 0:
                             setTitle("Binary Counter");
@@ -134,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
                         default:
                             setTitle("Unknown Function");
                     }
-                }
-        );
+                //}
+        //);
     }
 
     /**
@@ -148,7 +150,9 @@ public class MainActivity extends AppCompatActivity {
         /*
         As with switchFunction, we also need to move to the UI Thread to manipulate this view.
          */
-        runOnUiThread(() -> chart.addEntry(val));
+        // TODO: 12/4/15 These runnables are causing memory leaks! :(
+        //runOnUiThread(() -> chart.addEntry(val));
+        chart.addEntry(val);
     }
 
     /**
@@ -213,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Use RxBluetooth to listen to the InputStream of data.  Use onBytesReceived as a callback.
                     RxBluetooth.readInputStream(socket)
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(this::onBytesReceived, this::onError);
 
                 }, this::onError);

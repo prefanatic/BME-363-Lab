@@ -67,6 +67,7 @@ public class ReplacingLineChartView extends FrameLayout {
         mChart.getAxisLeft().setAxisMaxValue(255);
         mChart.getAxisRight().setEnabled(false);
         mChart.getXAxis().setDrawLabels(false);
+        mChart.setTouchEnabled(false);
 
         addView(mChart, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
