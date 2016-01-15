@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.fab) FloatingActionButton mFab;
     @Bind(R.id.line_chart_original) ReplacingLineChartView mChartOriginal;
-    @Bind(R.id.line_chart_transformed) ReplacingLineChartView mChartTransformed;
 
     /*
     Define the fields we are going to use globally within the MainActivity.
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private int byteReadFlag = -1; // An integer determining the type of data we are expected to receive next receive click.
     private volatile int graphValueToAdd;
     private boolean skipTriggerOriginal = false; // Skip triggers used to draw every other point we receive.
-    private boolean skipTriggerTransformed = false;
 
     /**
      * OnCreate Override.
@@ -70,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(mToolbar); // Set our toolbar to the one provided in our layout resource.
         mChartOriginal.setMaximumX(1024); // Prevent both charts from going beyond a 1024 point size in the X direction.
-        mChartTransformed.setMaximumX(1024);
     }
 
     /**
@@ -183,13 +180,6 @@ public class MainActivity extends AppCompatActivity {
                         graphValue(val, mChartOriginal);
                     }
                     skipTriggerOriginal = !skipTriggerOriginal;
-                    byteReadFlag = -1;
-                    break;
-                case 2: // Expecting the transformed graph value.
-                    if (!skipTriggerTransformed) {
-                        graphValue(val, mChartTransformed);
-                    }
-                    skipTriggerTransformed = !skipTriggerTransformed;
                     byteReadFlag = -1;
                     break;
                 default:
