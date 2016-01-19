@@ -18,21 +18,24 @@ package edu.uri.egr.bme363lab.ui;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import edu.uri.egr.bme363lab.ui.dialog.DeviceListDialog;
 import edu.uri.egr.bme363lab.R;
-import edu.uri.egr.bme363lab.ui.widget.ReplacingLineChartView;
 import edu.uri.egr.bme363lab.RxBluetooth;
+import edu.uri.egr.bme363lab.ui.dialog.DeviceListDialog;
+import edu.uri.egr.bme363lab.ui.widget.ReplacingLineChartView;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -259,5 +262,40 @@ public class MainActivity extends AppCompatActivity {
                 mSocket.close(); // Close our socket!
             } catch (IOException e) {
             }
+    }
+
+    /**
+     * onOptionsItemSelected
+     * Called when button is clicked on in the Toolbar.
+     * @param item The MenuItem object associated with the button clicked.
+     * @return Boolean value - true if the event was consumed, otherwise false.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Check to see what the ID of this item is.
+        switch(item.getItemId()) {
+
+            // If this item is our heart icon, lets switch to the new activity.
+            case R.id.action_health_guess:
+                Intent intent = new Intent(this, HealthGuessActivity.class);
+                startActivity(intent);
+
+                // We need to return true to say we've consumed this call.
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * onCreateOptionsMenu
+     * Called when the Activity is ready to have the menu inflated from a resource.
+     * @param menu The Menu.
+     * @return Boolean value - true if the event was consumed, otherwise false.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 }

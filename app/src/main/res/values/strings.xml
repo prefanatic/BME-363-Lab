@@ -20,4 +20,26 @@
 
     <string name="dialog_select_device">Select a device</string>
     <string name="dialog_search">Scan for new</string>
+    <string name="health_male">Male</string>
+    <string name="health_female">Female</string>
+    <string name="health_gender">Gender</string>
+    <string name="health_fitness">Fitness Level</string>
+    <string-array name="health_fitness_choices">
+        <item>Athlete</item>
+        <item>Excellent</item>
+        <item>Good</item>
+        <item>Above Average</item>
+        <item>Average</item>
+        <item>Below Average</item>
+        <item>Poor</item>
+    </string-array>
+    <string name="health_height">Height (inches)</string>
+    <string name="health_weight">Weight (pounds)</string>
+    <string name="health_bmi">Your BMI is</string>
+    <string name="health_calculate">Calculate</string>
+    <string name="health_cannot_calculate">Missing fields!</string>
+    <string name="action_health_guess">Health Guess</string>
+    <string name="activity_heart_guess"><![CDATA[BMI & Age Guesser]]></string>
+    <string name="health_age">Age (years)</string>
+    <string name="health_heart">Your resting heart should be around</string>
 </resources>

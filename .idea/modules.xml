@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BME-363-Lab.iml" filepath="$PROJECT_DIR$/BME-363-Lab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BME-363-Lab.iml" filepath="$PROJECT_DIR$/BME-363-Lab.iml" />
       <module fileurl="file://$PROJECT_DIR$/BME363Lab.iml" filepath="$PROJECT_DIR$/BME363Lab.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
