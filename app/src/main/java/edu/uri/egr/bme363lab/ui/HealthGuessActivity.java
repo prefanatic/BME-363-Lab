@@ -161,8 +161,10 @@ public class HealthGuessActivity extends AppCompatActivity {
         String weight = weightEntry.getText().toString();
         String height = heightEntry.getText().toString();
         String age = ageEntry.getText().toString();
-        int gender = genderGroup.getCheckedRadioButtonId();
         int fitness = fitnessSpinner.getSelectedItemPosition();
+
+        View selectedGenderView = genderGroup.findViewById(genderGroup.getCheckedRadioButtonId());
+        int gender = genderGroup.indexOfChild(selectedGenderView);
 
         Timber.d("Weight (%s) - Height (%s) - Age (%s) - Gender (%d) - Fitness (%d)", weight, height, age, gender, fitness);
 
