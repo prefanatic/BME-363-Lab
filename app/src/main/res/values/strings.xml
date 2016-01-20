@@ -42,4 +42,7 @@
     <string name="activity_heart_guess"><![CDATA[BMI & Age Guesser]]></string>
     <string name="health_age">Age (years)</string>
     <string name="health_heart">Your resting heart should be around</string>
+    <string name="location_lat">Latitude</string>
+    <string name="location_lng">Longitude</string>
+    <string name="unknown">Unknown</string>
 </resources>
