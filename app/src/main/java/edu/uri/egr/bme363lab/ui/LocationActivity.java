@@ -84,7 +84,13 @@ public class LocationActivity extends AppCompatActivity implements SensorEventLi
         // We need to unregister our listeners here, otherwise we'll leak the sensors.
         // Leaking that causes battery drain, memory leaks, and other bad things.
         sensorManager.unregisterListener(this);
-        locationManager.removeUpdates(this);
+
+        // Check to see if the permissions were registered in the first place.
+        // If they weren't we would crash without running isGranted();
+        if (RxPermissions.getInstance(this)
+                .isGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            locationManager.removeUpdates(this);
+        }
 
         super.onDestroy();
     }
