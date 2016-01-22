@@ -29,10 +29,9 @@ import java.io.IOException;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import edu.uri.egr.bme363lab.ui.dialog.DeviceListDialog;
 import edu.uri.egr.bme363lab.R;
-import edu.uri.egr.bme363lab.ui.widget.ReplacingLineChartView;
 import edu.uri.egr.bme363lab.RxBluetooth;
+import edu.uri.egr.bme363lab.ui.dialog.DeviceListDialog;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
@@ -44,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
      */
     @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.fab) FloatingActionButton mFab;
-    @Bind(R.id.line_chart_original) ReplacingLineChartView mChartOriginal;
 
     /*
     Define the fields we are going to use globally within the MainActivity.
@@ -52,12 +50,11 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothSocket mSocket; // BluetoothSocket that contains bluetooth info to our PIC.
     private int currentFunction; // Unused?  Delete?
     private int byteReadFlag = -1; // An integer determining the type of data we are expected to receive next receive click.
-    private volatile int graphValueToAdd;
-    private boolean skipTriggerOriginal = false; // Skip triggers used to draw every other point we receive.
 
     /**
      * OnCreate Override.
      * This runs when the Activity is being created.  This can be through the initial start of the activity, a screen rotation, or a restore from being deleted.
+     *
      * @param savedInstanceState A bundle of objects if onCreate is run after being persisted through a rotation or delete.  Can be null.
      */
     @Override
@@ -67,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this); // Tell ButterKnife we want to bind the views we just made from setContentView.
 
         setSupportActionBar(mToolbar); // Set our toolbar to the one provided in our layout resource.
-        mChartOriginal.setMaximumX(1024); // Prevent both charts from going beyond a 1024 point size in the X direction.
     }
 
     /**
@@ -86,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
      * switchFunction
      * This is called whenever we would like to switch the int value of the function from the PIC.
      * It handles the conversion of the int value to the String representation.
+     *
      * @param function Integer value of the function sent from the PIC.  Equal to the PIC's global function.
      */
     private void switchFunction(int function) {
@@ -99,62 +96,48 @@ public class MainActivity extends AppCompatActivity {
          */
         // TODO: 12/4/15 These runnables are causing memory leaks!  :(
         //runOnUiThread(() -> {
-                    switch (function) {
-                        case 0:
-                            setTitle("Binary Counter");
-                            break;
-                        case 1:
-                            setTitle("ECG Simulation");
-                            break;
-                        case 2:
-                            setTitle("Echo (A/D - D/A)");
-                            break;
-                        case 3:
-                            setTitle("");
-                            break;
-                        case 4:
-                            setTitle("Derivative");
-                            break;
-                        case 5:
-                            setTitle("Low-pass Filter");
-                            break;
-                        case 6:
-                            setTitle("Hi-Freq Enhance");
-                            break;
-                        case 7:
-                            setTitle("60hz Notch Filter");
-                            break;
-                        case 8:
-                            setTitle("Median Filter");
-                            break;
-                        case 9:
-                            setTitle("MOBD");
-                            break;
-                        default:
-                            setTitle("Unknown Function");
-                    }
-                //}
+        switch (function) {
+            case 0:
+                setTitle("Binary Counter");
+                break;
+            case 1:
+                setTitle("ECG Simulation");
+                break;
+            case 2:
+                setTitle("Echo (A/D - D/A)");
+                break;
+            case 3:
+                setTitle("");
+                break;
+            case 4:
+                setTitle("Derivative");
+                break;
+            case 5:
+                setTitle("Low-pass Filter");
+                break;
+            case 6:
+                setTitle("Hi-Freq Enhance");
+                break;
+            case 7:
+                setTitle("60hz Notch Filter");
+                break;
+            case 8:
+                setTitle("Median Filter");
+                break;
+            case 9:
+                setTitle("MOBD");
+                break;
+            default:
+                setTitle("Unknown Function");
+        }
+        //}
         //);
-    }
-
-    /**
-     * graphValue
-     * Uses the parameters given to graph to a specified chart.
-     * @param val Integer value of data to graph
-     * @param chart The specified chart to graph on.
-     */
-    private void graphValue(int val, ReplacingLineChartView chart) {
-        /*
-        As with switchFunction, we also need to move to the UI Thread to manipulate this view.
-         */
-        // TODO: 12/4/15 These runnables are causing memory leaks! :(
-        //runOnUiThread(() -> chart.addEntry(val));
-        chart.addEntry(val);
     }
 
     /**
      * onBytesReceived
      * This is a callback run every time there is any sort of byte[] data received from the PIC.
+     *
      * @param data byte[] data containing info from the PIC.  Length is always unknown.
      */
     private void onBytesReceived(byte[] data) {
@@ -174,14 +157,6 @@ public class MainActivity extends AppCompatActivity {
                     switchFunction(val);
                     byteReadFlag = -1;
                     break;
-                case 1: // Expecting an untouched graph value.
-                    // Skip every other graph value.  Too much data!
-                    if (!skipTriggerOriginal) {
-                        graphValue(val, mChartOriginal);
-                    }
-                    skipTriggerOriginal = !skipTriggerOriginal;
-                    byteReadFlag = -1;
-                    break;
                 default:
                     byteReadFlag = -1; // We've got no idea what this is.  Hold on tight until we get a byteReadFlag we know.
                     Timber.e("Unknown byteReadFlag set (%d).", val);
@@ -194,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
      * deviceSelected
      * Callback for the DeviceListDialog shown on FAB click.
      * This will run any time a device is selected from the dialog, and handles connecting to that device.
+     *
      * @param device BluetoothDevice from the dialog list.
      */
     private void deviceSelected(BluetoothDevice device) {
@@ -216,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * onError
      * Called anytime a Throwable is used to signify an error.
+     *
      * @param e Throwable of an error.
      */
     private void onError(Throwable e) {
@@ -231,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * snackMessage
      * Little helper function to display a Snackbar with a text provided.
+     *
      * @param text String message
      */
     private void snackMessage(String text) {
