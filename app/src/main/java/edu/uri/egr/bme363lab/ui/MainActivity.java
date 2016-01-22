@@ -282,6 +282,11 @@ public class MainActivity extends AppCompatActivity {
 
                 // We need to return true to say we've consumed this call.
                 return true;
+            case R.id.action_location:
+                Intent locationIntent = new Intent(this, LocationActivity.class);
+                startActivity(locationIntent);
+
+                return true;
         }
 
         return false;

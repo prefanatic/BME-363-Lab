@@ -45,6 +45,8 @@
     <string name="location_lat">Latitude</string>
     <string name="location_lng">Longitude</string>
     <string name="unknown">Unknown</string>
-    <string name="location_elevation">Pressure</string>
+    <string name="location_elevation">Elevation</string>
     <string name="location_pressure">Pressure</string>
+    <string name="action_location">Location</string>
+    <string name="activity_location"><![CDATA[Location & Pressure]]></string>
 </resources>

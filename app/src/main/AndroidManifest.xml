@@ -19,6 +19,7 @@
     package="edu.uri.egr.bme363lab"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
@@ -43,6 +44,10 @@
         <activity
             android:name=".ui.HealthGuessActivity"
             android:label="@string/activity_heart_guess"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".ui.LocationActivity"
+            android:label="@string/activity_location"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
