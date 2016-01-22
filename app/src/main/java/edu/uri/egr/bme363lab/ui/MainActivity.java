@@ -16,6 +16,7 @@
 
 package edu.uri.egr.bme363lab.ui;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
@@ -27,6 +28,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.tbruyelle.rxpermissions.RxPermissions;
+
 import java.io.IOException;
 
 import butterknife.Bind;
@@ -36,6 +39,7 @@ import edu.uri.egr.bme363lab.R;
 import edu.uri.egr.bme363lab.RxBluetooth;
 import edu.uri.egr.bme363lab.ui.dialog.DeviceListDialog;
 import edu.uri.egr.bme363lab.ui.widget.ReplacingLineChartView;
+import edu.uri.egr.hermes.manipulators.FileLog;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,10 +62,16 @@ public class MainActivity extends AppCompatActivity {
     private volatile int graphValueToAdd;
     private boolean skipTriggerOriginal = false; // Skip triggers used to draw every other point we receive.
     private boolean skipTriggerTransformed = false;
+    private FileLog originalLog;
+    private FileLog transformedLog;
+    private volatile boolean logWritable;
+    private long logStartTime;
+    private boolean logPermissionGranted;
 
     /**
      * OnCreate Override.
      * This runs when the Activity is being created.  This can be through the initial start of the activity, a screen rotation, or a restore from being deleted.
+     *
      * @param savedInstanceState A bundle of objects if onCreate is run after being persisted through a rotation or delete.  Can be null.
      */
     @Override
@@ -73,6 +83,18 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar); // Set our toolbar to the one provided in our layout resource.
         mChartOriginal.setMaximumX(1024); // Prevent both charts from going beyond a 1024 point size in the X direction.
         mChartTransformed.setMaximumX(1024);
+
+        RxPermissions.getInstance(this)
+                .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(granted -> {
+                    logPermissionGranted = granted;
+                    if (granted) {
+                        originalLog = new FileLog("original.csv");
+                        transformedLog = new FileLog("transformed.csv");
+                    } else {
+                        snackMessage("Unable to write logs without permission!");
+                    }
+                });
     }
 
     /**
@@ -91,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
      * switchFunction
      * This is called whenever we would like to switch the int value of the function from the PIC.
      * It handles the conversion of the int value to the String representation.
+     *
      * @param function Integer value of the function sent from the PIC.  Equal to the PIC's global function.
      */
     private void switchFunction(int function) {
@@ -139,12 +162,54 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        // Update the logs to match our current set function.
+        updateLogs();
+    }
+
+    /**
+     * updateLogs
+     * Updates the original and transformed logs to match the current function and time.
+     */
+    private void updateLogs() {
+        if (!logPermissionGranted) return;
+
+        logWritable = false; // Make it so we can't write anything if we receive a byte stream faster than we can run this code.
+
+        // Re-create the new logs under different names.
+        originalLog = new FileLog(String.format("%d (original) - %d.csv", currentFunction, System.currentTimeMillis()));
+        transformedLog = new FileLog(String.format("%d (transformed) - %d.csv", currentFunction, System.currentTimeMillis()));
+
+        // Set their headers.
+        originalLog.setHeaders("Time (ms)", "Value");
+        transformedLog.setHeaders("Time (ms)", "Value");
+
+        logStartTime = System.currentTimeMillis();
+        logWritable = true;
+    }
+
+    /**
+     * writeValue
+     * Writes the graph value to a log.
+     * @param val   Integer of data to write
+     * @param chart The specified chart to determine which log to write to.
+     */
+    private void writeValue(int val, ReplacingLineChartView chart) {
+        if (!logWritable) return;
+        if (!logPermissionGranted) return;
+
+        if (chart.equals(mChartOriginal)) {
+            originalLog.write(originalLog.msTimeFrom(logStartTime), val);
+        } else {
+            transformedLog.write(originalLog.msTimeFrom(logStartTime), val);
+        }
     }
 
     /**
      * graphValue
      * Uses the parameters given to graph to a specified chart.
-     * @param val Integer value of data to graph
+     *
+     * @param val   Integer value of data to graph
      * @param chart The specified chart to graph on.
      */
     private void graphValue(int val, ReplacingLineChartView chart) {
@@ -152,11 +217,15 @@ public class MainActivity extends AppCompatActivity {
         As with switchFunction, we also need to move to the UI Thread to manipulate this view.
          */
         runOnUiThread(() -> chart.addEntry(val));
+
+        // Write the value to disk!
+        writeValue(val, chart);
     }
 
     /**
      * onBytesReceived
      * This is a callback run every time there is any sort of byte[] data received from the PIC.
+     *
      * @param data byte[] data containing info from the PIC.  Length is always unknown.
      */
     private void onBytesReceived(byte[] data) {
@@ -203,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
      * deviceSelected
      * Callback for the DeviceListDialog shown on FAB click.
      * This will run any time a device is selected from the dialog, and handles connecting to that device.
+     *
      * @param device BluetoothDevice from the dialog list.
      */
     private void deviceSelected(BluetoothDevice device) {
@@ -224,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * onError
      * Called anytime a Throwable is used to signify an error.
+     *
      * @param e Throwable of an error.
      */
     private void onError(Throwable e) {
@@ -239,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * snackMessage
      * Little helper function to display a Snackbar with a text provided.
+     *
      * @param text String message
      */
     private void snackMessage(String text) {
@@ -267,13 +339,14 @@ public class MainActivity extends AppCompatActivity {
     /**
      * onOptionsItemSelected
      * Called when button is clicked on in the Toolbar.
+     *
      * @param item The MenuItem object associated with the button clicked.
      * @return Boolean value - true if the event was consumed, otherwise false.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Check to see what the ID of this item is.
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
 
             // If this item is our heart icon, lets switch to the new activity.
             case R.id.action_health_guess:
@@ -295,6 +368,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * onCreateOptionsMenu
      * Called when the Activity is ready to have the menu inflated from a resource.
+     *
      * @param menu The Menu.
      * @return Boolean value - true if the event was consumed, otherwise false.
      */
