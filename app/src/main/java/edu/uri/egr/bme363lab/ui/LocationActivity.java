@@ -16,16 +16,71 @@
 
 package edu.uri.egr.bme363lab.ui;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import edu.uri.egr.bme363lab.R;
 
 /**
  * Created by cody on 1/20/16.
  */
-public class LocationActivity extends AppCompatActivity {
+public class LocationActivity extends AppCompatActivity implements SensorEventListener, LocationListener {
+    @Bind(R.id.pressure_data) TextView pressureView;
+
+    private Sensor pressureSensor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_location);
+        ButterKnife.bind(this);
 
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+
+        pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        sensorManager.registerListener(this, pressureSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Do nothing here - we don't care about it!
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        pressureView.setText(String.format("%.2f", event.values[0]));
     }
 }

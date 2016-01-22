@@ -45,8 +45,8 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_marginBottom="8dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="@string/location_lat"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
@@ -54,20 +54,35 @@
             android:id="@+id/lat_data"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/unknown"
             android:layout_marginBottom="12dp"
+            android:text="@string/unknown"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/location_lng"
             android:layout_marginBottom="8dp"
+            android:text="@string/location_lng"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
 
         <TextView
             android:id="@+id/lng_data"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:text="@string/unknown"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/location_pressure"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/pressure_data"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:text="@string/unknown"
