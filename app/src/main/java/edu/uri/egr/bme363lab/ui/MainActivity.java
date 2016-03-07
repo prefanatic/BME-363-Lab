@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         mChartOriginal.setMaximumX(1024); // Prevent both charts from going beyond a 1024 point size in the X direction.
         mChartTransformed.setMaximumX(1024);
 
-        // TODO: COMMENTS
+        // Add a graph controller to handle the viewport syncing between our two charts.
         graphController = new GraphTransformController(mChartOriginal, mChartTransformed);
 
         RxPermissions.getInstance(this)
