@@ -60,7 +60,7 @@ public class RxBluetooth {
     }
 
     public static Observable<BluetoothSocket> connectAsClient(BluetoothDevice device) {
-        return Observable.defer(() -> {
+        Observable<BluetoothSocket> connectObservable = Observable.defer(() -> {
             BluetoothSocket socket = null;
             try {
                 socket = device.createRfcommSocketToServiceRecord(SPP);
@@ -83,6 +83,10 @@ public class RxBluetooth {
             }
 
             return Observable.just(socket);
-        }).subscribeOn(Schedulers.io());
+        });
+
+        return connectObservable
+                .retry(5)
+                .subscribeOn(Schedulers.io());
     }
 }

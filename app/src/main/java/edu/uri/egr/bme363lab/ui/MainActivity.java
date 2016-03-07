@@ -27,6 +27,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -56,6 +59,10 @@ public class MainActivity extends AppCompatActivity {
     ReplacingLineChartView mChartOriginal;
     @Bind(R.id.line_chart_transformed)
     ReplacingLineChartView mChartTransformed;
+    @Bind(R.id.progressBar)
+    ProgressBar progressBar;
+    @Bind(R.id.progressText)
+    TextView progressText;
 
     /*
     Define the fields we are going to use globally within the MainActivity.
@@ -113,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
      */
     @OnClick(R.id.fab)
     public void onFabClicked() {
+
+        // If we're connected, we'll want this button to change our graph freeze state.
         if (mSocket != null) {
             handleGraphFreezeState();
             return;
@@ -123,6 +132,9 @@ public class MainActivity extends AppCompatActivity {
         dialog.show(getFragmentManager(), "deviceList"); // Finally, show the dialog.
     }
 
+    /**
+     * Changes the FAB to show the proper action icon for graph freezing.
+     */
     private void handleGraphFreezeState() {
         if (!graphFrozen) {
             mFab.setImageResource(R.drawable.ic_pause_black_24dp);
@@ -240,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
     private void graphValue(int val, ReplacingLineChartView chart) {
         /*
         As with switchFunction, we also need to move to the UI Thread to manipulate this view.
+        If we're frozen, we don't care about the value, so we don't graph it!
          */
         if (!graphFrozen) {
             runOnUiThread(() -> chart.addEntry(val));
@@ -303,6 +316,9 @@ public class MainActivity extends AppCompatActivity {
      * @param device BluetoothDevice from the dialog list.
      */
     private void deviceSelected(BluetoothDevice device) {
+        // Let the user know we're connecting by showing a refresh.
+        showRefresh("Connecting to the PIC.");
+
         // Use the provided RxBluetooth library to connect to the device.
         RxBluetooth.connectAsClient(device)
                 .subscribe(socket -> {
@@ -314,6 +330,9 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         // Set the FAB to become a graph freeze function.
                         mFab.setImageResource(R.drawable.ic_pause_black_24dp);
+
+                        // Stop our refresh.
+                        hideRefresh();
                     });
 
                     // Use RxBluetooth to listen to the InputStream of data.  Use onBytesReceived as a callback.
@@ -321,6 +340,26 @@ public class MainActivity extends AppCompatActivity {
                             .subscribe(this::onBytesReceived, this::onError);
 
                 }, this::onError);
+    }
+
+    /**
+     * Shows the refresh progress bar and text, while setting a message.
+     *
+     * @param text Message to display.
+     */
+    private void showRefresh(String text) {
+        progressText.setText(text);
+
+        Animation.show(progressBar);
+        Animation.show(progressText);
+    }
+
+    /**
+     * Hides the progress views.
+     */
+    private void hideRefresh() {
+        Animation.hide(progressBar);
+        Animation.hide(progressText);
     }
 
     /**
@@ -340,6 +379,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Try to close our socket, if its not null and it exists.
         tryToCloseSocket();
+
+        // Hide any refresh we've got going on!
+        runOnUiThread(this::hideRefresh);
     }
 
     /**
@@ -378,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this); // We need to unbind from ButterKnife, otherwise we leak memory.
-        tryToCloseSocket();
+        tryToCloseSocket(); // Cleanup our bluetooth stuff.
     }
 
     /**
