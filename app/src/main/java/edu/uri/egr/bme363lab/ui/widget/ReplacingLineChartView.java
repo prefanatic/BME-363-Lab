@@ -33,7 +33,7 @@ import edu.uri.egr.bme363lab.R;
 public class ReplacingLineChartView extends FrameLayout {
     private int COLOR_ACCENT;
 
-    private LineChart mChart;
+    public LineChart mChart;
 
     private int mXInsertEntry = 0;
     private int mForwardRemoveSize = 0;

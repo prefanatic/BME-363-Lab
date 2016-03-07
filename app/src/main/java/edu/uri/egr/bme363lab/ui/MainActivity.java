@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private volatile boolean logWritable;
     private long logStartTime;
     private boolean logPermissionGranted;
+    private GraphTransformController graphController;
 
     /**
      * OnCreate Override.
@@ -83,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar); // Set our toolbar to the one provided in our layout resource.
         mChartOriginal.setMaximumX(1024); // Prevent both charts from going beyond a 1024 point size in the X direction.
         mChartTransformed.setMaximumX(1024);
+
+        // TODO: COMMENTS
+        graphController = new GraphTransformController(mChartOriginal, mChartTransformed);
 
         RxPermissions.getInstance(this)
                 .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
