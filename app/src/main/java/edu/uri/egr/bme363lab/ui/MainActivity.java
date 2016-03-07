@@ -137,9 +137,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void handleGraphFreezeState() {
         if (!graphFrozen) {
-            mFab.setImageResource(R.drawable.ic_pause_black_24dp);
-        } else {
             mFab.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+        } else {
+            mFab.setImageResource(R.drawable.ic_pause_black_24dp);
         }
 
         graphFrozen = !graphFrozen;
