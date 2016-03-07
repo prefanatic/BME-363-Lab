@@ -48,10 +48,14 @@ public class MainActivity extends AppCompatActivity {
     we can "Bind" our views directly into fields within our MainActivity.  This is pretty much short hand.
     Without ButterKnife, we cannot do @Bind, or @OnClick.  We would have to use findViewById() - and that is a pain.
      */
-    @Bind(R.id.toolbar) Toolbar mToolbar;
-    @Bind(R.id.fab) FloatingActionButton mFab;
-    @Bind(R.id.line_chart_original) ReplacingLineChartView mChartOriginal;
-    @Bind(R.id.line_chart_transformed) ReplacingLineChartView mChartTransformed;
+    @Bind(R.id.toolbar)
+    Toolbar mToolbar;
+    @Bind(R.id.fab)
+    FloatingActionButton mFab;
+    @Bind(R.id.line_chart_original)
+    ReplacingLineChartView mChartOriginal;
+    @Bind(R.id.line_chart_transformed)
+    ReplacingLineChartView mChartTransformed;
 
     /*
     Define the fields we are going to use globally within the MainActivity.
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private long logStartTime;
     private boolean logPermissionGranted;
     private GraphTransformController graphController;
+    private boolean graphFrozen;
 
     /**
      * OnCreate Override.
@@ -108,9 +113,24 @@ public class MainActivity extends AppCompatActivity {
      */
     @OnClick(R.id.fab)
     public void onFabClicked() {
+        if (mSocket != null) {
+            handleGraphFreezeState();
+            return;
+        }
+
         DeviceListDialog dialog = new DeviceListDialog(); // Create a new dialog object.
         dialog.getDevice().subscribe(this::deviceSelected); // "Subscribe" to the output of whatever we select.
         dialog.show(getFragmentManager(), "deviceList"); // Finally, show the dialog.
+    }
+
+    private void handleGraphFreezeState() {
+        if (!graphFrozen) {
+            mFab.setImageResource(R.drawable.ic_pause_black_24dp);
+        } else {
+            mFab.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+        }
+
+        graphFrozen = !graphFrozen;
     }
 
     /**
@@ -195,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * writeValue
      * Writes the graph value to a log.
+     *
      * @param val   Integer of data to write
      * @param chart The specified chart to determine which log to write to.
      */
@@ -220,7 +241,9 @@ public class MainActivity extends AppCompatActivity {
         /*
         As with switchFunction, we also need to move to the UI Thread to manipulate this view.
          */
-        runOnUiThread(() -> chart.addEntry(val));
+        if (!graphFrozen) {
+            runOnUiThread(() -> chart.addEntry(val));
+        }
 
         // Write the value to disk!
         writeValue(val, chart);
@@ -288,6 +311,11 @@ public class MainActivity extends AppCompatActivity {
 
                     mSocket = socket; // Save the socket for when we need to clean up when we're done.
 
+                    runOnUiThread(() -> {
+                        // Set the FAB to become a graph freeze function.
+                        mFab.setImageResource(R.drawable.ic_pause_black_24dp);
+                    });
+
                     // Use RxBluetooth to listen to the InputStream of data.  Use onBytesReceived as a callback.
                     RxBluetooth.readInputStream(socket)
                             .subscribe(this::onBytesReceived, this::onError);
@@ -308,6 +336,26 @@ public class MainActivity extends AppCompatActivity {
             snackMessage("Disconnected");
         } else {
             snackMessage(e.getMessage());
+        }
+
+        // Try to close our socket, if its not null and it exists.
+        tryToCloseSocket();
+    }
+
+    /**
+     * Tries to close the BluetoothSocket cleanly.
+     */
+    private void tryToCloseSocket() {
+        if (mSocket != null) {
+            try {
+                mSocket.close();
+            } catch (Exception e) {
+
+            }
+
+            mSocket = null;
+            mFab.setImageResource(R.drawable.ic_bluetooth_connected_24dp);
+            graphFrozen = false;
         }
     }
 
@@ -330,14 +378,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this); // We need to unbind from ButterKnife, otherwise we leak memory.
-
-        // If we've connected/this isn't null
-        if (mSocket != null)
-
-            try {
-                mSocket.close(); // Close our socket!
-            } catch (IOException e) {
-            }
+        tryToCloseSocket();
     }
 
     /**
